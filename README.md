@@ -1,126 +1,32 @@
-[![Checks Status](https://github.com/io12/pwninit/workflows/checks/badge.svg)](https://github.com/io12/pwninit/actions)
-[![Deploy Status](https://github.com/io12/pwninit/workflows/deploy/badge.svg)](https://github.com/io12/pwninit/actions)
-[![](https://img.shields.io/crates/v/pwninit)](https://crates.io/crates/pwninit)
-[![](https://docs.rs/pwninit/badge.svg)](https://docs.rs/pwninit)
+# added feature
 
-# `pwninit`
-
-A tool for automating starting binary exploit challenges
-
-## Features
-
-- Set challenge binary to be executable
-- Download a linker (`ld-linux.so.*`) that can segfaultlessly load the provided libc
-- Download debug symbols and unstrip the libc
-- Patch the binary with [`patchelf`](https://github.com/NixOS/patchelf) to use
-  the correct RPATH and interpreter for the provided libc
-- Fill in a template pwntools solve script
-
-## Usage
-
-### Short version
-
-Run `pwninit`
-
-### Long version
-
-Run `pwninit` in a directory with the relevant files and it will detect which ones are the binary, libc, and linker. If the detection is wrong, you can specify the locations with `--bin`, `--libc`, and `--ld`.
-
-#### Custom `solve.py` template
-
-If you don't like the default template, you can use your own. Just specify `--template-path <path>`. Check [template.py](src/template.py) for the template format. The names of the `exe`, `libc`, and `ld` bindings can be customized with `--template-bin-name`, `--template-libc-name`, and `--template-ld-name`.
-
-##### Persisting custom `solve.py`
-
-You can make `pwninit` load your custom template automatically by adding an alias to your `~/.bashrc`.
-
-###### Example
+- Fetch libc and ld by specifing version string (for example `2.36-0ubuntu4_amd64`), and unstrip libc.
 
 ```bash
-alias pwninit='pwninit --template-path ~/.config/pwninit-template.py --template-bin-name e'
-```
+$ ../target/debug/pwninit -h
+[...]
+OPTIONS:
+        --bin <bin>                                  Binary to pwn
+    -f, --fetch <fetch>                              Fetch libc and ld by version
+[...]
 
-## Install
+$ pwninit -f 2.36-0ubuntu4_amd64
+fetching libc and linker version: 2.36-0ubuntu4_amd64
+https://launchpad.net/ubuntu/+archive/primary/+files//libc6_2.36-0ubuntu4_amd64.deb
+https://launchpad.net/ubuntu/+archive/primary/+files//libc6_2.36-0ubuntu4_amd64.deb
+libc: ./libc-2.36.so
+ld: ./ld-2.36.so
 
-### Arch Linux
-
-Install [`pwninit`](https://aur.archlinux.org/packages/pwninit/) or
-[`pwninit-bin`](https://aur.archlinux.org/packages/pwninit-bin/) from the AUR.
-
-### Download
-
-You can download statically-linked [musl](https://www.musl-libc.org/)
-binaries from the [releases page](https://github.com/io12/pwninit/releases).
-
-### Using cargo
-
-Run
-
-```sh
-cargo install pwninit
-```
-
-This places the binary in `~/.cargo/bin`.
-
-Note that `openssl`, `liblzma`, and `pkg-config` are required for the build.
-
-## Example
-
-```sh
-$ ls
-hunter  libc.so.6  readme
-
-$ pwninit
-bin: ./hunter
-libc: ./libc.so.6
-
-setting ./hunter executable
-fetching linker
-https://launchpad.net/ubuntu/+archive/primary/+files//libc6_2.23-0ubuntu10_i386.deb
+warning: failed setting binary to be executable: binary not found
 unstripping libc
-https://launchpad.net/ubuntu/+archive/primary/+files//libc6-dbg_2.23-0ubuntu10_i386.deb
-setting ./ld-2.23.so executable
-copying ./hunter to ./hunter_patched
-running patchelf on ./hunter_patched
-writing solve.py stub
-
+https://launchpad.net/ubuntu/+archive/primary/+files//libc6-dbg_2.36-0ubuntu4_amd64.deb
+setting ./ld-2.36.so executable
 $ ls
-hunter	hunter_patched	ld-2.23.so  libc.so.6  readme  solve.py
+ld-2.36.so  libc-2.36.so  solve.py
+$ file *
+ld-2.36.so:   ELF 64-bit LSB shared object, x86-64, version 1 (GNU/Linux), dynamically linked, BuildID[sha1]=292e105c0bb3ee8e8f5b917f8af764373d206659, stripped
+libc-2.36.so: ELF 64-bit LSB shared object, x86-64, version 1 (GNU/Linux), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=d1704d25fbbb72fa95d517b883131828c0883fe9, for GNU/Linux 3.2.0, with debug_info, not stripped
+solve.py:     Python script, ASCII text executable, with CRLF line terminators
+$
 ```
 
-`solve.py`:
-
-```python
-#!/usr/bin/env python3
-
-from pwn import *
-
-exe = ELF("./hunter_patched")
-libc = ELF("./libc.so.6")
-ld = ELF("./ld-2.23.so")
-
-context.binary = exe
-
-
-def conn():
-    if args.LOCAL:
-        r = process([exe.path])
-        if args.DEBUG:
-            gdb.attach(r)
-    else:
-        r = remote("addr", 1337)
-
-    return r
-
-
-def main():
-    r = conn()
-
-    # good luck pwning :)
-
-    r.interactive()
-
-
-if __name__ == "__main__":
-    main()
-```
