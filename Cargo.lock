@@ -534,6 +534,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db6d7e329c562c5dfab7a46a2afabc8b987ab9a4834c9d1ca04dc54c1546cef8"
 
 [[package]]
+name = "liblzma"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd5d1e268bf4438ccf3b376e1663c189727d8dadeb0e7d48b989c69c1ce2aecc"
+dependencies = [
+ "liblzma-sys",
+]
+
+[[package]]
+name = "liblzma-sys"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb224f17bac97c26045472ccb3890e8c0f4a1589674357426bc0ca814be94752"
+dependencies = [
+ "cc",
+ "libc",
+ "pkg-config",
+]
+
+[[package]]
 name = "log"
 version = "0.4.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -735,6 +755,7 @@ dependencies = [
  "goblin",
  "hex",
  "is_executable",
+ "liblzma",
  "maplit",
  "reqwest",
  "rust-lzma",

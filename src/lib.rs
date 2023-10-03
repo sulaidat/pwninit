@@ -3,6 +3,7 @@
 mod cpu_arch;
 mod elf;
 mod fetch_ld;
+mod fetch_both;
 mod libc_deb;
 mod libc_version;
 pub mod opts;
@@ -18,6 +19,7 @@ pub use crate::pwninit::Result;
 
 use crate::elf::detect::is_elf;
 pub use crate::fetch_ld::fetch_ld;
+pub use crate::fetch_both::fetch_libc_and_ld;
 use crate::libc_version::LibcVersion;
 use crate::opts::Opts;
 pub use crate::set_exec::set_exec;
@@ -61,6 +63,14 @@ fn maybe_fetch_ld(opts: &Opts, ver: &LibcVersion) -> fetch_ld::Result {
     match opts.ld {
         Some(_) => Ok(()),
         None => fetch_ld(ver),
+    }
+}
+
+/// cccc
+fn maybe_fetch_libc_and_ld(opts: &Opts) -> fetch_both::Result {
+    match &opts.fetch {
+        Some(ver_string_short) => fetch_libc_and_ld(&ver_string_short),
+        None => Ok(()),
     }
 }
 

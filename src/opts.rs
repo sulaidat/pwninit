@@ -78,6 +78,10 @@ pub struct Opts {
     /// Disable generating template solve script
     #[structopt(long)]
     pub no_template: bool,
+
+    /// Fetch libc and ld by version
+    #[structopt(long, short)]
+    pub fetch: Option<String>,
 }
 
 impl Opts {

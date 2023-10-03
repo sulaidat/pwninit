@@ -1,3 +1,4 @@
+use crate::maybe_fetch_libc_and_ld;
 use crate::maybe_visit_libc;
 use crate::opts;
 use crate::patch_bin;
@@ -34,6 +35,8 @@ pub type Result = std::result::Result<(), Error>;
 
 /// Run `pwninit` with specified options
 pub fn run(opts: Opts) -> Result {
+    let _ = maybe_fetch_libc_and_ld(&opts);
+
     // Detect unspecified files
     let opts = opts.find_if_unspec().context(FindSnafu)?;
 
