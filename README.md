@@ -1,6 +1,14 @@
+# how to build
+
+```bash
+cargo build
+```
+
+binary is in `target/debug/`
+
 # added feature
 
-- Fetch libc and ld by specifing version string (for example `2.36-0ubuntu4_amd64`), and unstrip libc.
+Fetch libc and ld by specifing version string (for example `2.36-0ubuntu4_amd64`), and unstrip libc. The result libc is unstripped using package `libc6-dbg_` and ready for debug (I forgot to reserve the source code).
 
 ```bash
 $ ../target/debug/pwninit -h
@@ -30,3 +38,10 @@ solve.py:     Python script, ASCII text executable, with CRLF line terminators
 $
 ```
 
+How to get the string? In the above example, I google "glibc 2.36 source package", go to the site "launchpad.net", then find the `libc6` entry: 
+
+![image-20231004144056203](images/image-20231004144056203.png)
+
+Now you can see the string:
+
+![image-20231004144138335](images/image-20231004144138335.png)
